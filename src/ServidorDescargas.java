@@ -110,8 +110,31 @@ public class ServidorDescargas {
     }
 
     private static void ejecutarYtdlp(String url, String rutaDestino) throws Exception {
-        String[] comando = {"yt-dlp", "-x", "--audio-format", "mp3", "-o", rutaDestino, url};
-        Process proceso = new ProcessBuilder(comando).start();
+        // Le añadimos argumentos para limitar la caché, el buffer y el uso de memoria de yt-dlp
+        String[] comando = {
+                "yt-dlp",
+                "-x",
+                "--audio-format", "mp3",
+                "--no-cache-dir",              // No guarda basura en memoria
+                "--buffer-size", "16K",         // Fuerza buffers pequeños para no saturar la RAM
+                "-o", rutaDestino,
+                url
+        };
+
+        ProcessBuilder pb = new ProcessBuilder(comando);
+        // Redirigimos los errores a la consola de Render para poder ver si algo falla
+        pb.redirectErrorStream(true);
+
+        Process proceso = pb.start();
+
+        // Es vital leer la salida del proceso para que no se bloquee por saturación de buffer
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(proceso.getInputStream()))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                System.out.println("[yt-dlp] " + line);
+            }
+        }
+
         proceso.waitFor();
     }
 
