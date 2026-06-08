@@ -31,23 +31,23 @@ public class ServidorDescargas {
                 }
 
                 String urlYoutube = query.split("url=")[1];
-                // Descodificamos la URL por si viene con caracteres raros del móvil
+                
                 urlYoutube = URLDecoder.decode(urlYoutube, StandardCharsets.UTF_8.name());
 
                 System.out.println("Petición recibida para: " + urlYoutube);
 
                 try {
-                    // Obtener el título real del vídeo usando yt-dlp antes de descargar
+                    
                     String tituloCancion = obtenerTituloVideo(urlYoutube);
                     System.out.println("Título detectado: " + tituloCancion);
 
 
                     String nombreArchivoLimpio = tituloCancion.replaceAll("[\\\\/:*?\"<>|]", "_") + ".mp3";
 
-                    //Guardar en el directorio temporal (/tmp/) ---
+                    
                     String rutaDestinoCompleta = "/tmp/" + nombreArchivoLimpio;
 
-                    // Ejecutar la descarga real pasándole el nombre dinámico
+               
                     ejecutarYtdlp(urlYoutube, rutaDestinoCompleta);
 
                     File mp3 = new File(rutaDestinoCompleta);
@@ -55,7 +55,7 @@ public class ServidorDescargas {
                         throw new IOException("El archivo MP3 no se generó correctamente.");
                     }
 
-                    // Enviar el archivo MP3 de vuelta al móvil con su nombre
+                 
                     exchange.getResponseHeaders().set("Content-Type", "audio/mpeg");
                     exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=\"" + nombreArchivoLimpio + "\"");
                     exchange.sendResponseHeaders(200, mp3.length());
@@ -72,7 +72,7 @@ public class ServidorDescargas {
 
                     System.out.println("¡Archivo [" + nombreArchivoLimpio + "] enviado con éxito!");
 
-                    // Liberar espacio inmediatamente borrando el archivo del contenedor de Render
+                 
                     if (mp3.exists()) {
                         boolean borrado = mp3.delete();
                         if (borrado) {
